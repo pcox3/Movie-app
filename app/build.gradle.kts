@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.dagger.hilt.android") version "2.44" apply false
+    kotlin("kapt")
 }
 
 android {
@@ -61,13 +63,16 @@ dependencies {
 
     //glide image loader
     implementation ("com.github.bumptech.glide:glide:4.12.0")
-    //kapt 'com.github.bumptech.glide:compiler:4.12.0'
+    kapt ("com.github.bumptech.glide:compiler:4.12.0")
+
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     //kotlin coroutine
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     implementation ("androidx.room:room-runtime:2.4.0")
-   // kapt ("androidx.room:room-compiler:1.0")
+    kapt ("androidx.room:room-compiler:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -78,4 +83,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+kapt {
+    correctErrorTypes = true
 }

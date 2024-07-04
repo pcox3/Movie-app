@@ -17,7 +17,8 @@ import com.movies.models.SearchMovieResponse
 import com.movies.utility.genericClassCast
 import com.movies.viewModel.MovieViewModel
 
-class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+
+class MainActivity : AppCompatActivity() {
 
     private val viewmodel by lazy { ViewModelProvider(this)[MovieViewModel::class.java] }
     val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -38,28 +39,27 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             }
             binding.rvMovies.adapter = adapter
 
-            searchBar.setOnQueryTextListener(this@MainActivity)
+            searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
+                    debounceRunnable = Runnable {
+                        newText?.let {
+                            searchMovies(it)
+                        }
+                    }
+                    debounceRunnable?.let { debounceHandler.postDelayed(it, DEBOUNCE_DELAY) }
+
+                    return true
+                }
+            })
             swipeRefresh.isEnabled = false //Avoid SwipeRefreshLayout from refreshing on pull to refresh
 
         }
 
 
-    }
-
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return false
-    }
-    override fun onQueryTextChange(newText: String?): Boolean {
-        debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
-        debounceRunnable = Runnable {
-            newText?.let {
-                searchMovies(it)
-            }
-        }
-        debounceRunnable?.let { debounceHandler.postDelayed(it, DEBOUNCE_DELAY) }
-
-        return true
     }
 
 
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             when (it){
                 is ResponseStatus.Success -> {
                     val response = genericClassCast(it.data, SearchMovieResponse::class.java)
-                    adapter.setMovies(response?.search?:ArrayList())
+                    adapter.setMovies(response?.search?:mutableListOf())
                     if (adapter.itemCount == 0){
                         binding.tvEmpty.visibility = View.VISIBLE
                     }
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 is ResponseStatus.Failed -> {
                     Toast.makeText(this, it.error?.error, Toast.LENGTH_SHORT).show()
                 }
+                else -> {}
             }
         }
     }

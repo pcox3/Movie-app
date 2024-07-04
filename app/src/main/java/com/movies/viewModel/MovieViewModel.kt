@@ -11,7 +11,7 @@ import com.movies.models.SearchMovieResponse
 
 class MovieViewModel(application: Application): AndroidViewModel(application) {
 
-    private val repo = MovieRepo.getRepoInstance()
+    private val repo = MovieRepo(application)
 
     fun searchMovies(query: String): LiveData<ResponseStatus<SearchMovieResponse>> {
         return repo.searchMovies( query)

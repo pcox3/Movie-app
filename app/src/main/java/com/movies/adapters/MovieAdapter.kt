@@ -9,14 +9,15 @@ import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.movies.R
+import com.movies.models.MovieItem
 import com.movies.models.SearchMovieResponse
 
 class MovieAdapter(
     private val context: Context,
-    private val clickListener: (SearchMovieResponse.MovieItem, Int) -> Unit
+    private val clickListener: (MovieItem, Int) -> Unit
 ): RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
-    private var movies: ArrayList<SearchMovieResponse.MovieItem>? = null
+    private var movies: MutableList<MovieItem>? = null
 
     class MovieViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
 
@@ -24,10 +25,10 @@ class MovieAdapter(
         private val yearTextView = itemView.findViewById<MaterialTextView>(R.id.tv_movie_year)
         private val posterImageView = itemView.findViewById<ShapeableImageView>(R.id.img_movie_poster)
 
-        fun bind(movie: SearchMovieResponse.MovieItem,
+        fun bind(movie: MovieItem,
                  context: Context,
                  position: Int,
-                 clickListener: (SearchMovieResponse.MovieItem, Int) -> Unit){
+                 clickListener: (MovieItem, Int) -> Unit){
             titleTextView.text = movie.title
             yearTextView.text = movie.year
             Glide.with(context).load(movie.poster).into(posterImageView)
@@ -42,7 +43,7 @@ class MovieAdapter(
         return MovieViewHolder(view)
     }
 
-    fun setMovies(movies: ArrayList<SearchMovieResponse.MovieItem>){
+    fun setMovies(movies: MutableList<MovieItem>){
         this.movies?.clear()
         this.movies = movies
         notifyDataSetChanged()
