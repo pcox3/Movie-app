@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
             adapter = MovieAdapter(this@MainActivity){ it, position ->
                 supportFragmentManager.apply {
                     beginTransaction()
-                        .replace(R.id.frag_container, FragmentMovieDetails(movieId = it.imdbID?:""))
+                        .replace(R.id.frag_container, FragmentMovieDetails.newInstance(it.imdbID))
                         .addToBackStack(null)
                         .commit()
                 }

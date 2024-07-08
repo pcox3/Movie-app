@@ -15,9 +15,10 @@ import com.movies.models.ResponseStatus
 import com.movies.utility.genericClassCast
 import com.movies.viewModel.MovieViewModel
 
-class FragmentMovieDetails(
-    private val movieId: String
-): Fragment() {
+class FragmentMovieDetails: Fragment() {
+
+    private var param1: String? = null
+    private val movieId by lazy { param1.toString() }
 
     private val binding by lazy { FragmentMovieDetailsBinding.inflate(layoutInflater) }
     private val viewmodel by lazy { ViewModelProvider(this)[MovieViewModel::class.java] }
@@ -35,6 +36,10 @@ class FragmentMovieDetails(
 
 
     private fun initViews(){
+
+        arguments?.let {
+            param1 = it.getString(MOVIE_ID)
+        }
 
         with(binding){
             swipeRefresh.isEnabled = false //Avoid SwipeRefreshLayout from refreshing on pull to refresh
@@ -70,5 +75,16 @@ class FragmentMovieDetails(
     }
 
 
+    companion object {
+        private const val MOVIE_ID = "movieId"
+
+        fun newInstance(param1: String): FragmentMovieDetails {
+            val fragment = FragmentMovieDetails()
+            val args = Bundle()
+            args.putString(MOVIE_ID, param1)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 
 }
