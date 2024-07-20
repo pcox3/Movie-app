@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.movies.Fragment.FragmentMovieDetails
 import com.movies.R
@@ -14,6 +15,7 @@ import com.movies.adapters.MovieAdapter
 import com.movies.databinding.ActivityMainBinding
 import com.movies.models.ResponseStatus
 import com.movies.models.SearchMovieResponse
+import com.movies.utility.debounce
 import com.movies.utility.genericClassCast
 import com.movies.viewModel.MovieViewModel
 
@@ -21,7 +23,7 @@ import com.movies.viewModel.MovieViewModel
 class MainActivity : AppCompatActivity() {
 
     private val viewmodel by lazy { ViewModelProvider(this)[MovieViewModel::class.java] }
-    val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private lateinit var adapter: MovieAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,10 +31,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         with(binding){
-            adapter = MovieAdapter(this@MainActivity){ it, position ->
+            adapter = MovieAdapter(this@MainActivity){ it, _ ->
                 supportFragmentManager.apply {
                     beginTransaction()
                         .replace(R.id.frag_container, FragmentMovieDetails.newInstance(it.imdbID))
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null)
                         .commit()
                 }
@@ -44,19 +47,16 @@ class MainActivity : AppCompatActivity() {
                     return false
                 }
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
-                    debounceRunnable = Runnable {
+                    debounce {
                         newText?.let {
                             searchMovies(it)
                         }
                     }
-                    debounceRunnable?.let { debounceHandler.postDelayed(it, DEBOUNCE_DELAY) }
-
                     return true
                 }
             })
-            swipeRefresh.isEnabled = false //Avoid SwipeRefreshLayout from refreshing on pull to refresh
 
+            // END OF BINDING CODE
         }
 
 
@@ -64,9 +64,9 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun searchMovies(query: String){
-        binding.swipeRefresh.isRefreshing = true
+        binding.progressIndicator.show()
         viewmodel.searchMovies(query = query).observe(this){
-            binding.swipeRefresh.isRefreshing = false
+            binding.progressIndicator.hide()
             binding.tvEmpty.visibility = View.GONE
             when (it){
                 is ResponseStatus.Success -> {
@@ -79,20 +79,8 @@ class MainActivity : AppCompatActivity() {
                 is ResponseStatus.Failed -> {
                     Toast.makeText(this, it.error?.error, Toast.LENGTH_SHORT).show()
                 }
-                else -> {}
             }
         }
     }
-
-
-    private var debounceHandler: Handler = Handler(Looper.getMainLooper())
-    private var debounceRunnable: Runnable? = null
-
-    /**
-     * Call search API every x milliseconds as user types
-     * This has a flaw of too many API calls. Advisable to
-     * implement the onSearch option in the search bar
-     */
-    private val DEBOUNCE_DELAY: Long = 500
 
 }

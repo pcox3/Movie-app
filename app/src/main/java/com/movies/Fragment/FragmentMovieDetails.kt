@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.movies.R
 import com.movies.databinding.FragmentMovieDetailsBinding
 import com.movies.models.MovieDetailsResponse
 import com.movies.models.ResponseStatus
@@ -20,17 +22,18 @@ class FragmentMovieDetails: Fragment() {
     private var param1: String? = null
     private val movieId by lazy { param1.toString() }
 
-    private val binding by lazy { FragmentMovieDetailsBinding.inflate(layoutInflater) }
+    private lateinit var binding: FragmentMovieDetailsBinding
     private val viewmodel by lazy { ViewModelProvider(this)[MovieViewModel::class.java] }
 
     override fun onCreateView(inflater: LayoutInflater,
-      container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+      container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.viewModel = viewmodel
         initViews()
     }
 
@@ -44,7 +47,7 @@ class FragmentMovieDetails: Fragment() {
         with(binding){
             swipeRefresh.isEnabled = false //Avoid SwipeRefreshLayout from refreshing on pull to refresh
             toolbar.setNavigationOnClickListener {
-                requireActivity().onBackPressed()
+                parentFragmentManager.popBackStack()
             }
         }
 
@@ -60,12 +63,9 @@ class FragmentMovieDetails: Fragment() {
             when(it){
                 is ResponseStatus.Success -> {
                     val response = genericClassCast(it.data, MovieDetailsResponse::class.java)
-                    binding.tvMovieTitle.text = response?.title
-                    binding.tvMovieGenre.text = "Genre: ${response?.genre}"
-                    binding.tvMovieDirector.text = "Director: ${response?.director}"
-                    binding.tvMovieYear.text = "Year: ${response?.year}"
-                    binding.tvPlot.text = response?.plot
-                    Glide.with(requireContext()).load(response?.poster).into(binding.imgMoviePoster)
+                    viewmodel.setMovieDetails(response)
+                    binding.movieUrl = response?.poster
+                    binding.executePendingBindings()
                 }
                 is ResponseStatus.Failed -> {
                     Toast.makeText(requireContext(), it.error?.error, Toast.LENGTH_SHORT).show()

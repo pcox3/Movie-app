@@ -1,9 +1,23 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android") version "2.44" apply false
     kotlin("kapt")
 }
+
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()){
+    localPropertiesFile.inputStream().use {
+        localProperties.load(it)
+    }
+}
+
+val apiKey = localProperties.getProperty("API_KEY")
+val baseUrl = localProperties.getProperty("BASE_URL")
 
 android {
     namespace = "com.movies"
@@ -31,8 +45,8 @@ android {
         debug {
             isMinifyEnabled = false
             android.buildFeatures.buildConfig = true
-            buildConfigField("String", "BASE_URL", "\"https://www.omdbapi.com\"")
-            buildConfigField("String", "API_KEY", "\"46efce30\"")
+            buildConfigField("String", "BASE_URL", "$baseUrl")
+            buildConfigField("String", "API_KEY", "$apiKey")
         }
 
 

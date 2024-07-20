@@ -1,5 +1,7 @@
 package com.movies.utility
 
+import android.os.Handler
+import android.os.Looper
 import com.google.gson.Gson
 
 /**
@@ -20,4 +22,19 @@ fun <T>genericClassCast(value: Any?, baseClass: Class<T>): T?{
 
     }else
         null
+}
+
+
+/**
+ * @param seconds Time in milliseconds
+ * @param action Action to execute every x seconds
+ */
+private var debounceHandler: Handler = Handler(Looper.getMainLooper())
+private var debounceRunnable: Runnable? = null
+fun debounce(seconds:Long = 500, action: () -> Unit){
+    debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
+    debounceRunnable = Runnable {
+        action()
+    }
+    debounceRunnable?.let { debounceHandler.postDelayed(it, seconds) }
 }

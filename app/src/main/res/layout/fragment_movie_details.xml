@@ -6,11 +6,15 @@
         <variable
             name="viewModel"
             type="com.movies.viewModel.MovieViewModel" />
+        <variable
+            name="movieUrl"
+            type="String" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clickable="true"
         android:background="?android:attr/colorBackground"
         android:orientation="vertical">
 
@@ -42,7 +46,7 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:layout_weight="7"
-                    android:src="@drawable/ic_launcher_foreground"
+                    app:movieUrl="@{movieUrl}"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -51,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_big"
                     android:textSize="18sp"
+                    android:text="@={viewModel.title}"
                     style="@style/TextAppearance.AppCompat.Headline"
                     android:textStyle="bold"
                     android:maxLines="2"
@@ -59,23 +64,27 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_movie_genre"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@={viewModel.movieGenre}"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_movie_director"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@={viewModel.movieDirector}"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_movie_year"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@={viewModel.movieReleaseDate}"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_plot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
+                    android:text="@={viewModel.movieOverview}"
                     style="@style/TextAppearance.AppCompat.Headline"
                     android:layout_marginTop="16dp" />
 

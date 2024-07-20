@@ -1,5 +1,6 @@
 package com.movies.models
 
+import android.os.Parcelable
 import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -10,6 +11,7 @@ data class SearchMovieResponse(
     @SerializedName("totalResults") val page:Long,
     @SerializedName("Response") val response:Boolean,
 )
+
 @Entity(tableName = "movies")
 data class MovieItem(
     @SerializedName("Title") val title:String?,
